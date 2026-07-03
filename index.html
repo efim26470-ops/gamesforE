@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru" data-theme="system">
+<html lang="ru" data-theme="system" data-skin="apple">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -10,27 +10,40 @@
   <title>Сапёр и Морской бой</title>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icons/favicon.svg" type="image/svg+xml" />
-  <link rel="apple-touch-icon" href="icons/apple-touch-icon.svg" />
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <div id="splash" class="splash" aria-hidden="true">
+    <div class="splash-card">
+      <div class="app-icon-mini">✹</div>
+      <strong>Apple Games Hub</strong>
+      <span>Сапёр · Морской бой · ИИ</span>
+    </div>
+  </div>
+
   <div class="ambient ambient-one" aria-hidden="true"></div>
   <div class="ambient ambient-two" aria-hidden="true"></div>
+  <div class="ambient ambient-three" aria-hidden="true"></div>
 
   <main class="app-shell">
     <header class="topbar card glass">
-      <div>
-        <p class="eyebrow">локально · GitHub Pages · без серверов</p>
-        <h1>Сапёр & Морской бой</h1>
+      <div class="brand">
+        <div class="brand-icon">✹</div>
+        <div>
+          <p class="eyebrow">локально · GitHub Pages · PWA</p>
+          <h1>Сапёр & Морской бой</h1>
+        </div>
       </div>
 
       <div class="top-actions">
-        <nav class="tabs" aria-label="Выбор игры">
+        <nav class="tabs" aria-label="Выбор раздела">
           <button class="tab active" data-screen="mines">Сапёр</button>
           <button class="tab" data-screen="battle">Морской бой</button>
+          <button class="tab" data-screen="profile">Профиль</button>
         </nav>
 
-        <label class="theme-picker" aria-label="Выбор темы">
+        <label class="compact-field" aria-label="Выбор темы">
           <span>Тема</span>
           <select id="themeSelect">
             <option value="system">Системная</option>
@@ -38,13 +51,32 @@
             <option value="dark">Тёмная</option>
           </select>
         </label>
+
+        <label class="compact-field" aria-label="Визуальный стиль">
+          <span>Стиль</span>
+          <select id="skinSelect"></select>
+        </label>
+
+        <button id="soundToggle" class="icon-button" aria-pressed="true" title="Звук">🔊</button>
       </div>
     </header>
+
+    <section class="campaign-strip card glass" aria-label="Мини-кампания">
+      <div>
+        <p class="eyebrow">кампания</p>
+        <h2 id="profileRankTitle">Новичок</h2>
+      </div>
+      <div class="xp-block">
+        <div class="xp-meta"><span id="profileXpLabel">0 / 120 XP</span><span id="unlockHint">Открыт Apple</span></div>
+        <div class="xp-track"><div id="xpFill" class="xp-fill"></div></div>
+      </div>
+      <div class="rank-badges" id="rankBadges" aria-label="Звания"></div>
+    </section>
 
     <section id="screen-mines" class="screen active" aria-labelledby="minesTitle">
       <div class="layout two-col">
         <aside class="panel card glass">
-          <p class="eyebrow">классика</p>
+          <p class="eyebrow">классика с ежедневным испытанием</p>
           <h2 id="minesTitle">Сапёр</h2>
           <p class="muted">Открой все безопасные клетки. Первый ход всегда безопасный. На ПК ставь флаг правой кнопкой, на телефоне включай режим флага.</p>
 
@@ -55,11 +87,13 @@
                 <option value="easy">Лёгкая · 9×9 · 10 мин</option>
                 <option value="medium">Средняя · 16×16 · 40 мин</option>
                 <option value="hard">Сложная · 22×16 · 70 мин</option>
+                <option value="expert">Эксперт · 28×18 · 99 мин</option>
               </select>
             </label>
 
             <div class="button-row">
               <button id="newMineGame" class="primary">Новая игра</button>
+              <button id="dailyMineGame" class="secondary">Испытание дня</button>
               <button id="flagMode" class="ghost" aria-pressed="false">🚩 Флаг</button>
             </div>
           </div>
@@ -68,48 +102,69 @@
             <div class="stat"><span>Мины</span><strong id="mineLeft">10</strong></div>
             <div class="stat"><span>Время</span><strong id="mineTimer">0с</strong></div>
             <div class="stat"><span>Рекорд</span><strong id="mineBest">—</strong></div>
+            <div class="stat"><span>Ходы</span><strong id="mineMoves">0</strong></div>
           </div>
 
           <div id="mineStatus" class="status neutral">Выбери клетку, чтобы начать.</div>
         </aside>
 
         <section class="board-card card glass board-wrap">
-          <div id="mineBoard" class="mine-board" aria-label="Игровое поле сапёра"></div>
+          <div class="board-head">
+            <div>
+              <p class="eyebrow">поле сапёра</p>
+              <h3 id="mineBoardTitle">Обычная партия</h3>
+            </div>
+            <span id="mineSeedBadge" class="badge">random</span>
+          </div>
+          <div class="mine-scroll">
+            <div id="mineBoard" class="mine-board" aria-label="Игровое поле сапёра"></div>
+          </div>
         </section>
       </div>
     </section>
 
     <section id="screen-battle" class="screen" aria-labelledby="battleTitle">
       <div class="layout battle-layout">
-        <aside class="panel card glass">
-          <p class="eyebrow">игрок против ии</p>
+        <aside class="panel card glass battle-control">
+          <p class="eyebrow">игрок против ИИ</p>
           <h2 id="battleTitle">Морской бой</h2>
-          <p class="muted">Расставь флот автоматически, выбери сложность ИИ и стреляй по правому полю. Попадание даёт дополнительный ход.</p>
+          <p class="muted">Расставь флот вручную или автоматически. Попадание даёт дополнительный ход. ИИ на сложных режимах добивает корабль по направлению.</p>
 
           <div class="control-stack">
             <label class="field">
               <span>Сложность ИИ</span>
               <select id="battleDifficulty">
                 <option value="easy">Лёгкая · случайные выстрелы</option>
-                <option value="medium">Средняя · добивает найденный корабль</option>
-                <option value="hard">Сложная · умный поиск + добивание</option>
+                <option value="normal">Средняя · поиск + добивание</option>
+                <option value="hard">Сложная · шахматный поиск</option>
+                <option value="expert">Эксперт · анализ направления</option>
               </select>
             </label>
 
+            <div class="ship-builder">
+              <div class="builder-head">
+                <span>Ручная расстановка</span>
+                <button id="rotateShip" class="ghost small" aria-pressed="false">↻ Горизонтально</button>
+              </div>
+              <div id="shipTray" class="ship-tray" aria-label="Корабли для ручной расстановки"></div>
+            </div>
+
             <div class="button-row">
-              <button id="randomFleet" class="ghost">Расставить флот</button>
+              <button id="autoFleet" class="secondary">Автофлот</button>
+              <button id="clearFleet" class="ghost">Очистить</button>
               <button id="startBattle" class="primary">Начать бой</button>
+              <button id="dailyBattle" class="secondary">Бой дня</button>
             </div>
           </div>
 
           <div class="stats-grid">
             <div class="stat"><span>Ваши корабли</span><strong id="playerShipsLeft">5</strong></div>
-            <div class="stat"><span>Корабли ИИ</span><strong id="enemyShipsLeft">5</strong></div>
+            <div class="stat"><span>Корабли ИИ</span><strong id="aiShipsLeft">5</strong></div>
             <div class="stat"><span>Победы</span><strong id="battleWins">0</strong></div>
             <div class="stat"><span>Поражения</span><strong id="battleLosses">0</strong></div>
           </div>
 
-          <div id="battleStatus" class="status neutral">Расставь флот и начни бой.</div>
+          <div id="battleStatus" class="status neutral">Расставь флот и нажми «Начать бой».</div>
         </aside>
 
         <section class="battle-boards">
@@ -117,27 +172,55 @@
             <div class="board-head">
               <div>
                 <p class="eyebrow">ваше поле</p>
-                <h3>Флот игрока</h3>
+                <h3 id="playerBoardCaption">Флот игрока</h3>
               </div>
-              <span class="chip">10×10</span>
+              <span id="orientationBadge" class="badge">горизонтально</span>
             </div>
-            <div id="playerBoard" class="sea-board" aria-label="Поле игрока"></div>
+            <div id="playerBoard" class="sea-board" aria-label="Ваше поле"></div>
           </article>
 
           <article class="board-card card glass">
             <div class="board-head">
               <div>
-                <p class="eyebrow">поле ии</p>
-                <h3>Цель</h3>
+                <p class="eyebrow">поле противника</p>
+                <h3>Стреляй сюда</h3>
               </div>
-              <span class="chip">стреляй сюда</span>
+              <span id="battleSeedBadge" class="badge">random</span>
             </div>
-            <div id="enemyBoard" class="sea-board enemy" aria-label="Поле противника"></div>
+            <div id="aiBoard" class="sea-board enemy" aria-label="Поле ИИ"></div>
           </article>
         </section>
       </div>
     </section>
+
+    <section id="screen-profile" class="screen" aria-labelledby="profileTitle">
+      <div class="layout profile-layout">
+        <section class="panel card glass">
+          <p class="eyebrow">статистика и прогресс</p>
+          <h2 id="profileTitle">Профиль</h2>
+          <p class="muted">Все данные хранятся локально в браузере. Никаких серверов, аккаунтов и внешних API.</p>
+
+          <div class="profile-grid" id="profileStats"></div>
+
+          <div class="button-row profile-actions">
+            <button id="exportProfile" class="secondary">Экспорт JSON</button>
+            <button id="resetProfile" class="ghost danger-button">Сбросить прогресс</button>
+          </div>
+        </section>
+
+        <section class="panel card glass">
+          <p class="eyebrow">развитие</p>
+          <h2>Уровни кампании</h2>
+          <div class="rank-list" id="rankList"></div>
+        </section>
+      </div>
+    </section>
   </main>
+
+  <template id="toastTemplate">
+    <div class="toast"></div>
+  </template>
+  <div id="toastLayer" class="toast-layer" aria-live="polite"></div>
 
   <script src="app.js"></script>
 </body>

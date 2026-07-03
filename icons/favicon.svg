@@ -1,15 +1,21 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
-    <linearGradient id="g" x1="96" y1="64" x2="416" y2="448" gradientUnits="userSpaceOnUse">
+    <linearGradient id="g" x1="72" y1="52" x2="430" y2="464" gradientUnits="userSpaceOnUse">
       <stop stop-color="#0A84FF"/>
+      <stop offset=".55" stop-color="#5AC8FA"/>
       <stop offset="1" stop-color="#AF52DE"/>
     </linearGradient>
+    <filter id="s" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-opacity=".28"/>
+    </filter>
   </defs>
   <rect width="512" height="512" rx="112" fill="url(#g)"/>
-  <circle cx="176" cy="170" r="26" fill="white" opacity=".95"/>
-  <circle cx="256" cy="170" r="26" fill="white" opacity=".95"/>
-  <circle cx="336" cy="170" r="26" fill="white" opacity=".95"/>
-  <circle cx="176" cy="250" r="26" fill="white" opacity=".95"/>
-  <path d="M256 248l32 32 64-96 32 24-76 114 68 68-36 36-64-64-64 64-36-36 68-68-68-68 36-36 44 44z" fill="white"/>
-  <circle cx="176" cy="330" r="26" fill="white" opacity=".95"/>
+  <g filter="url(#s)" fill="white">
+    <circle cx="164" cy="154" r="24" opacity=".96"/>
+    <circle cx="256" cy="154" r="24" opacity=".96"/>
+    <circle cx="348" cy="154" r="24" opacity=".96"/>
+    <circle cx="164" cy="246" r="24" opacity=".96"/>
+    <path d="M256 226l37 38 69-104 37 25-84 126 74 73-40 40-70-70-70 70-40-40 74-73-74-73 40-40 47 47z"/>
+    <circle cx="164" cy="338" r="24" opacity=".96"/>
+  </g>
 </svg>
